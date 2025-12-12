@@ -158,3 +158,51 @@ Enabled host ↔ container communication
 
 Verified connectivity using ping and curl
 ```
+
+
+# Macvlan Network Architecture Diagram
+
+                         ┌──────────────────────────────────────────┐
+                         │        App Server 3 (stapp03)             │
+                         │        Host OS: CentOS Stream 9           │
+                         └──────────────────────────────────────────┘
+                                             │
+                                             │  Physical Network
+                                             ▼
+                 ┌─────────────────────────────────────────────────────────────┐
+                 │                         eth0                                │
+                 │                IP: 172.16.238.12/24                          │
+                 │         (Primary host interface used as macvlan parent)     │
+                 └─────────────────────────────────────────────────────────────┘
+                                             │
+                                   macvlan (parent)
+                                             │
+               ┌──────────────────────────────────────────────────────────────┐
+               │                  Host-side macvlan interface                 │
+               │                        macvlan_host                          │
+               │                  IP: 192.168.0.250/24                        │
+               │        (Allows host ↔ container communication)               │
+               └──────────────────────────────────────────────────────────────┘
+                                             │
+                              ┌────────────────────────────────┐
+                              │   Docker macvlan network:      │
+                              │             beta                │
+                              │ Subnet:     192.168.0.0/24     │
+                              │ IP Range:   192.168.0.0/24     │
+                              │ Gateway:    192.168.0.1        │
+                              └────────────────────────────────┘
+                                             │
+                                             │  L2 switching (MAC-level)
+                                             ▼
+                     ┌────────────────────────────────────────────┐
+                     │ Docker Container (macvlan endpoint)        │
+                     │   Name: test-macvlan-static               │
+                     │   Image: nginx:alpine                     │
+                     │   IP: 192.168.0.50/24                     │
+                     │   MAC: 02:42:c0:a8:00:32                  │
+                     └────────────────────────────────────────────┘
+                                             │
+                                             │  HTTP Test
+                                             ▼
+                         curl http://192.168.0.50 → NGINX Welcome Page
+
