@@ -133,11 +133,11 @@ sudo vi /var/www/html/index.php
 
 <html>
     <head>
-        <title>Welcome to xFusionCorp Industries!</title>
+        <title>Welcome!</title>
     </head>
     <body>
         <?php
-            echo "Welcome to xFusionCorp Industries!";
+            echo "Welcome!";
         ?>
     </body>
 </html>
